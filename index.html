@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Learning Profile — PLC Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e17;
+    --paper: #fffcf5;
+    --accent: #e8572a;
+    --accent2: #2a6ee8;
+    --muted: #9a9589;
+    --soft: #f0ece1;
+    --border: #ddd8cc;
+    --card: #ffffff;
+    --success: #2a9e6e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .site-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .site-header .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .site-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 6vw, 48px);
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .site-header h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .site-header p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress-track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .question-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .question-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--paper);
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .option:hover {
+    border-color: var(--accent);
+    background: #fff8f5;
+    transform: translateX(2px);
+  }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: #fff3ee;
+    color: var(--ink);
+  }
+
+  .option .opt-icon {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .option .opt-check {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .option.selected .opt-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+
+  .option.selected .opt-check::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: white;
+  }
+
+  .option .opt-check.square {
+    border-radius: 4px;
+  }
+
+  .option.selected .opt-check.square::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    background: none;
+    border-radius: 0;
+  }
+
+  /* Next button */
+  .btn-next {
+    width: 100%;
+    padding: 14px 24px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-next:hover:not(:disabled) {
+    background: #1a1930;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .btn-next:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-next .arrow {
+    transition: transform 0.15s;
+  }
+
+  .btn-next:hover:not(:disabled) .arrow {
+    transform: translateX(3px);
+  }
+
+  /* Loading */
+  .loading-state {
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .loading-ring {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .loading-state small {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* Result card */
+  .result-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .result-emoji {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 12px;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .result-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .result-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .result-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .result-block {
+    background: var(--soft);
+    border-radius: 10px;
+    padding: 16px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .result-block .block-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .result-block .block-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  /* Discord paste box */
+  .discord-box {
+    background: #36393f;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .discord-box .discord-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #7289da;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .discord-box .discord-label::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #7289da;
+    border-radius: 50%;
+  }
+
+  .discord-box .discord-text {
+    font-size: 13px;
+    color: #dcddde;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Copy button */
+  .btn-copy {
+    width: 100%;
+    padding: 14px 24px;
+    background: #7289da;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .btn-copy:hover {
+    background: #5f73bc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(114,137,218,0.3);
+  }
+
+  .btn-copy.copied {
+    background: var(--success);
+  }
+
+  .btn-restart {
+    width: 100%;
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-restart:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* Intro screen */
+  .intro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--soft);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .intro-meta {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .intro-meta span {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-start {
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-start:hover {
+    background: #d14820;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(232,87,42,0.3);
+  }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 32px 16px 60px; }
+    .card { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site-header">
+    <div class="eyebrow">AI Learning PLC</div>
+    <h1>Find your <em>entry point</em></h1>
+    <p>5 questions to build your personal AI learning profile — and help our group grow together.</p>
+  </header>
+
+  <div id="app"></div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id: "comfort",
+    text: "How comfortable are you with AI tools right now?",
+    type: "single",
+    options: [
+      { value: "beginner", icon: "🌱", label: "Total beginner", sub: "I've barely touched any of it" },
+      { value: "dabbler", icon: "🔍", label: "Curious dabbler", sub: "I've tried ChatGPT or Claude a few times" },
+      { value: "regular", icon: "⚙️", label: "Regular user", sub: "I use AI tools at least weekly" },
+      { value: "power", icon: "🚀", label: "Power user", sub: "I build prompts, workflows, or integrations" },
+    ]
+  },
+  {
+    id: "goals",
+    text: "What would make this PLC worth your time?",
+    hint: "Pick up to 2",
+    type: "multi",
+    max: 2,
+    options: [
+      { value: "save_time", icon: "⏱️", label: "Save time at work with AI" },
+      { value: "stay_current", icon: "📡", label: "Stay current on what's happening" },
+      { value: "practical", icon: "🛠️", label: "Get hands-on skills I can use right away" },
+      { value: "critical", icon: "🧠", label: "Think critically about AI — not just use it" },
+      { value: "together", icon: "🤝", label: "Learn alongside colleagues, not alone" },
+    ]
+  },
+  {
+    id: "time",
+    text: "How much time can you realistically give per week?",
+    type: "single",
+    options: [
+      { value: "5", icon: "⚡", label: "~5 minutes", sub: "Skim posts, react occasionally" },
+      { value: "15", icon: "☕", label: "~15 minutes", sub: "Read something and drop a comment" },
+      { value: "30", icon: "📚", label: "~30 minutes", sub: "Try a challenge or share something" },
+      { value: "60", icon: "🔬", label: "60+ minutes", sub: "I want to go deep sometimes" },
+    ]
+  },
+  {
+    id: "interests",
+    text: "Which AI topics are you most curious about?",
+    hint: "Pick up to 3",
+    type: "multi",
+    max: 3,
+    options: [
+      { value: "prompting", icon: "✍️", label: "Prompting — getting better outputs" },
+      { value: "tools", icon: "🧰", label: "Tools — what's out there and worth using" },
+      { value: "automation", icon: "🔄", label: "Automation — making AI do repetitive work" },
+      { value: "ethics", icon: "⚖️", label: "Ethics & implications — the bigger picture" },
+      { value: "how_it_works", icon: "🔬", label: "How it works — the tech behind it" },
+      { value: "creative", icon: "🎨", label: "Creative uses — writing, design, ideation" },
+    ]
+  },
+  {
+    id: "obstacle",
+    text: "What's your biggest obstacle with AI right now?",
+    type: "single",
+    options: [
+      { value: "overwhelm", icon: "😵", label: "It's overwhelming", sub: "Too much, too fast" },
+      { value: "relevance", icon: "🤷", label: "Not sure it's relevant to my work", sub: "" },
+      { value: "trust", icon: "🤔", label: "I don't trust it", sub: "It makes stuff up" },
+      { value: "time", icon: "⏰", label: "I never make time for it", sub: "Even though I know I should" },
+      { value: "advanced", icon: "📈", label: "I'm past the basics", sub: "I want more advanced stuff" },
+    ]
+  }
+];
+
+let state = {
+  screen: 'intro', // intro | question | loading | result
+  step: 0,
+  answers: {},
+  profile: null
+};
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'intro') app.innerHTML = renderIntro();
+  else if (state.screen === 'question') app.innerHTML = renderQuestion();
+  else if (state.screen === 'loading') app.innerHTML = renderLoading();
+  else if (state.screen === 'result') app.innerHTML = renderResult();
+  attachHandlers();
+}
+
+function renderIntro() {
+  return `
+    <div class="card">
+      <div style="text-align:center">
+        <div class="intro-badge">✦ 5 questions &nbsp;·&nbsp; 2 minutes</div>
+        <p style="font-size:15px;color:#6b7280;line-height:1.7;margin-bottom:4px">
+          Answer honestly — there are no wrong answers. At the end you'll get a personalized 
+          learning profile to share with the group in <strong style="color:#0f0e17">#intros</strong>.
+        </p>
+        <div class="intro-meta">
+          <span>🤖 Powered by Claude</span>
+          <span>🔒 No data stored</span>
+          <span>📋 Copy & paste result</span>
+        </div>
+        <button class="btn-start" onclick="startSurvey()">
+          Start my profile <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>`;
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.step];
+  const current = state.answers[q.id] || (q.type === 'multi' ? [] : null);
+  const pct = Math.round(((state.step) / QUESTIONS.length) * 100);
+  const isMulti = q.type === 'multi';
+
+  const canAdvance = isMulti
+    ? (current && current.length > 0)
+    : current !== null;
+
+  const optionsHtml = q.options.map(opt => {
+    const selected = isMulti
+      ? (current && current.includes(opt.value))
+      : current === opt.value;
+    return `
+      <button class="option ${selected ? 'selected' : ''}" onclick="selectOption('${q.id}', '${opt.value}', ${isMulti})">
+        <span class="opt-icon">${opt.icon}</span>
+        <span style="flex:1">
+          <span style="display:block;font-weight:500">${opt.label}</span>
+          ${opt.sub ? `<span style="font-size:12px;color:#9a9589">${opt.sub}</span>` : ''}
+        </span>
+        <span class="opt-check ${isMulti ? 'square' : ''}"></span>
+      </button>`;
+  }).join('');
+
+  return `
+    <div style="margin-bottom:20px">
+      <div class="progress-track">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <span class="progress-label">${state.step + 1} / ${QUESTIONS.length}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="question-num">Question ${state.step + 1}</div>
+      <div class="question-text">${q.text}</div>
+      ${q.hint ? `<div class="question-hint">${q.hint}</div>` : '<div style="height:12px"></div>'}
+      <div class="options">${optionsHtml}</div>
+      <button class="btn-next" ${canAdvance ? '' : 'disabled'} onclick="nextQuestion()">
+        ${state.step === QUESTIONS.length - 1 ? 'Build my profile' : 'Next question'}
+        <span class="arrow">→</span>
+      </button>
+    </div>`;
+}
+
+function renderLoading() {
+  return `
+    <div class="card">
+      <div class="loading-state">
+        <div class="loading-ring"></div>
+        <p>Building your profile…</p>
+        <small>Claude is reading your answers</small>
+      </div>
+    </div>`;
+}
+
+function renderResult() {
+  const p = state.profile;
+  if (!p) return '';
+
+  const discordText = buildDiscordText(p);
+
+  return `
+    <div class="card">
+      <div class="result-header">
+        <span class="result-emoji">${p.emoji}</span>
+        <div class="result-title">${p.title}</div>
+        <div class="result-subtitle">${p.subtitle}</div>
+      </div>
+      <div class="result-sections">
+        <div class="result-block">
+          <div class="block-label">🎯 Your entry point</div>
+          <div class="block-content">${p.entryPoint}</div>
+        </div>
+        <div class="result-block">
+          <div class="block-label">🌱 Start here</div>
+          <div class="block-content">${p.startHere}</div>
+        </div>
+        <div class="result-block">
+          <div class="block-label">⚡ Quick win this week</div>
+          <div class="block-content">${p.quickWin}</div>
+        </div>
+        <div class="result-block">
+          <div class="block-label">📈 One-month stretch goal</div>
+          <div class="block-content">${p.stretchGoal}</div>
+        </div>
+      </div>
+
+      <div class="discord-box">
+        <div class="discord-label">Ready to paste into #intros</div>
+        <div class="discord-text" id="discord-text">${escapeHtml(discordText)}</div>
+      </div>
+
+      <button class="btn-copy" id="copy-btn" onclick="copyToClipboard()">
+        <span id="copy-icon">📋</span>
+        <span id="copy-label">Copy to clipboard</span>
+      </button>
+      <button class="btn-restart" onclick="restart()">↩ Start over</button>
+    </div>`;
+}
+
+function buildDiscordText(p) {
+  return `**${p.emoji} ${p.title}**
+${p.subtitle}
+
+**My entry point:** ${p.entryPoint}
+**Starting with:** ${p.startHere}
+**Quick win I'm trying this week:** ${p.quickWin}
+**My stretch goal:** ${p.stretchGoal}
+
+_${p.shareMessage}_`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function attachHandlers() {}
+
+function startSurvey() {
+  state.screen = 'question';
+  state.step = 0;
+  render();
+}
+
+function selectOption(qId, value, isMulti) {
+  if (isMulti) {
+    const q = QUESTIONS.find(q => q.id === qId);
+    const curr = state.answers[qId] || [];
+    if (curr.includes(value)) {
+      state.answers[qId] = curr.filter(v => v !== value);
+    } else if (curr.length < q.max) {
+      state.answers[qId] = [...curr, value];
+    }
+  } else {
+    state.answers[qId] = value;
+  }
+  render();
+}
+
+function nextQuestion() {
+  if (state.step < QUESTIONS.length - 1) {
+    state.step++;
+    state.screen = 'question';
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    state.screen = 'loading';
+    render();
+    generateProfile();
+  }
+}
+
+async function generateProfile() {
+  const a = state.answers;
+  const summary = `Comfort: ${a.comfort || 'unknown'}
+Goals: ${(a.goals||[]).join(', ')}
+Time available per week: ${a.time || 'unknown'} minutes
+Interests: ${(a.interests||[]).join(', ')}
+Main obstacle: ${a.obstacle || 'unknown'}`;
+
+  const prompt = `You are helping a small 5-person professional learning community understand each member's AI learning profile.
+
+Survey answers:
+${summary}
+
+Generate a personalized learning profile. Respond ONLY with valid JSON, no markdown fences, no extra text:
+{
+  "emoji": "one emoji capturing their vibe",
+  "title": "short punchy archetype like 'The Curious Skeptic' or 'The Efficiency Hunter'",
+  "subtitle": "one sentence capturing where they are right now",
+  "entryPoint": "2 sentences on where they're starting from and what motivates them",
+  "startHere": "specific first Discord channel or activity to focus on, 2 sentences",
+  "quickWin": "one very specific AI thing to try THIS week, doable in under 20 minutes",
+  "stretchGoal": "something they could contribute to the group in 1 month that plays to their strengths",
+  "shareMessage": "1-2 sentence intro in first person, honest and a little fun, for posting in #intros"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '{}';
+    const clean = text.replace(/```json|```/g, '').trim();
+    state.profile = JSON.parse(clean);
+  } catch(e) {
+    state.profile = {
+      emoji: "🌱",
+      title: "The Eager Learner",
+      subtitle: "Ready to dive in with curiosity and openness",
+      entryPoint: "You're approaching AI with an open mind and genuine curiosity. That's actually the most important ingredient.",
+      startHere: "Start in #til-ai with one small thing you notice or try each week. Low bar, high value.",
+      quickWin: "Ask Claude to rewrite a recent email you sent — make it shorter and punchier. Compare the two versions.",
+      stretchGoal: "Share a 3-bullet summary of one tool you've tested with the group.",
+      shareMessage: "Hi! I'm newer to AI than I'd like to be, but I'm here to change that. Be patient with me while I catch up! 😄"
+    };
+  }
+
+  state.screen = 'result';
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copyToClipboard() {
+  const p = state.profile;
+  const text = buildDiscordText(p);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const icon = document.getElementById('copy-icon');
+    const label = document.getElementById('copy-label');
+    btn.classList.add('copied');
+    icon.textContent = '✅';
+    label.textContent = 'Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      icon.textContent = '📋';
+      label.textContent = 'Copy to clipboard';
+    }, 2500);
+  }).catch(() => {
+    // Fallback for older browsers
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    alert('Copied to clipboard!');
+  });
+}
+
+function restart() {
+  state = { screen: 'intro', step: 0, answers: {}, profile: null };
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+render();
+</script>
+</body>
+</html>
